@@ -6,7 +6,7 @@ with tf.Graph().as_default():
     with tf.Session():
         print(sum.eval())
         with tf.Graph().as_default():
-    # A scalar (0-D tensor).
+    #A scalar (0-D tensor).
     scalar = tf.zeros([])
 
     # A vector with 3 elements.
