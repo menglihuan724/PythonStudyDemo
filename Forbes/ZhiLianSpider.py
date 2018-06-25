@@ -7,7 +7,7 @@ import time
 import csv
 from itertools import product
 
-TOTAL_PAGE_NUMBER = 5  # PAGE_NUMBER: total number of pages，可进行修改
+TOTAL_PAGE_NUMBER = 10  # PAGE_NUMBER: total number of pages，可进行修改
 
 KEYWORDS = ['大数据', 'python', 'java工程师','数据分析'] # 需爬取的关键字可以自己添加或修改
 
@@ -53,7 +53,7 @@ def get_content(html):
             tr_brief = table_info.find('tr', {'class': ' newlist_tr_detail'})
             #brief = tr_brief.find('li', {'class': 'newlist_deatil_last'}).get_text()
             yield{
-                'tds':tds,
+                #'tds':tds,
                 'zwmc':zwmc,
                 'zw_link':zw_link,
                 'fkl':fkl,
@@ -64,9 +64,10 @@ def get_content(html):
                 #'brief':brief,
                 'date':date
             }
-def save_tocsv(data,file_name):
-     with open (file_name,'a',errors='ingore',newline='') as f:
-         f_csv=csv.writer (f)
+def save_tocsv(data, file_name):
+     with open (file_name,'w', encoding="gbk", errors='ignore', newline='') as f:
+         header=['zwmc','zw_link','fkl','gsmc','zwyx','gzdd','gbsj','date']
+         f_csv=csv.DictWriter(f,fieldnames=header)
          f_csv.writerows(data)
 
 def main(args):
@@ -80,9 +81,9 @@ def main(args):
     html = download(url)
     if html:
         data=get_content(html)
-        for item in data:
-            save_tocsv(item,'zhilian.csv')
-
+        # for item in data:
+        #     print("item是 %s" % type(item))
+        save_tocsv(data,'zhilian.csv')
 if __name__ == '__main__':
     start=time.time()
     number_list=list(range(TOTAL_PAGE_NUMBER))
