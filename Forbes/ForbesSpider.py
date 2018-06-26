@@ -18,7 +18,7 @@ def get_content_first_page(html, country='China'):
     label_div = body.find('div', {'class': 'content post'})
     tables = label_div.find_all('table')
     trs = tables[0].find_all('tr')
-    row_title = [td.text for td in trs[0].find('td')]
+    row_title = [td.text for td in trs[0].find_all('td')]
     row_title.insert(2, 'country')
     data_list = []
     data_list.append(row_title)
@@ -51,7 +51,7 @@ def get_content_other_country(html, country_name):
     label_div = body.find('div', {'class': 'content post'})
     tables = label_div.find_all('table')
     trs = tables[0].find_all('tr')
-    row_title = [td.text for td in trs[0].find('td')]
+    row_title = [td.text for td in trs[0].find_all('td')]
     row_title.insert(2, 'country')
     data_list = []
     data_list.append(row_title)
@@ -67,6 +67,7 @@ def get_content_other_country(html, country_name):
 
 
 def save_data_to_csv_file(data, file_name):
+    print(data)
     # 保存数据到csv文件中
     with open(file_name, 'a', errors='ignore', newline='') as f:
         f_csv = csv.writer(f)
@@ -81,7 +82,7 @@ def get_forbes_global_year_2013():
     save_data_to_csv_file(data_first_page, 'forbes_2013.csv')
     country_info = get_country_info(html)
     for x, item in enumerate(country_info):
-        if(x>=3):
+        if(x>=1):
             break
         country_name = item[0]
         country_url = item[1]
@@ -97,4 +98,4 @@ if __name__ == '__main__':
 
     # get data from Forbes Global 2000 in Year 2013
     get_forbes_global_year_2013()
-    #print( get_country_info(download('http://www.economywatch.com/companies/forbes-list/china.html')))
+    #print( get_content_first_page(download('http://www.economywatch.com/companies/forbes-list/china.html')))
