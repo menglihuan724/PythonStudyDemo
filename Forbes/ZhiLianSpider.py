@@ -7,9 +7,9 @@ import time
 import csv
 from itertools import product
 
-TOTAL_PAGE_NUMBER = 10  # PAGE_NUMBER: total number of pages，可进行修改
+TOTAL_PAGE_NUMBER = 5  # PAGE_NUMBER: total number of pages，可进行修改
 
-KEYWORDS = ['大数据', 'python', 'java工程师','数据分析'] # 需爬取的关键字可以自己添加或修改
+KEYWORDS = ['大数据', 'python', 'java工程师', '数据分析','人工智能']  # 需爬取的关键字可以自己添加或修改
 
 # 爬取主要城市的记录
 ADDRESS = ['全国', '北京', '上海', '广州', '深圳',
@@ -22,25 +22,26 @@ ADDRESS = ['全国', '北京', '上海', '广州', '深圳',
 
 
 def download(url):
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
 
-    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
-
-    response = requests.get(url,headers=headers)
+    response = requests.get(url, headers=headers)
 
     # print(response.status_code)
 
     return response.text
 
+
 def get_content(html):
-    date=datetime.now().date()
-    date=datetime.strftime(date, "%Y-%m-%d")
-    soup=BeautifulSoup(html,'lxml')
-    body=soup.body
-    data_main=body.find('div',{'class':'newlist_list_content'})
+    date = datetime.now().date()
+    date = datetime.strftime(date, "%Y-%m-%d")
+    soup = BeautifulSoup(html, 'lxml')
+    body = soup.body
+    data_main = body.find('div', {'class': 'newlist_list_content'})
     if data_main:
         tables = data_main.find_all('table')
-        for i,table_info in enumerate(tables):
-            if i==0:
+        for i, table_info in enumerate(tables):
+            if i == 0:
                 continue
             tds = table_info.find('tr').find_all('td')
             zwmc = tds[0].find('a').get_text()  # 职位名称
@@ -51,24 +52,26 @@ def get_content(html):
             gzdd = tds[4].get_text()  # 工作地点
             gbsj = tds[5].find('span').get_text()  # 发布日期
             tr_brief = table_info.find('tr', {'class': ' newlist_tr_detail'})
-            #brief = tr_brief.find('li', {'class': 'newlist_deatil_last'}).get_text()
-            yield{
-                #'tds':tds,
-                'zwmc':zwmc,
-                'zw_link':zw_link,
-                'fkl':fkl,
-                'gsmc':gsmc,
-                'zwyx':zwyx,
-                'gzdd':gzdd,
-                'gbsj':gbsj,
-                #'brief':brief,
-                'date':date
+            # brief = tr_brief.find('li', {'class': 'newlist_deatil_last'}).get_text()
+            yield {
+                # 'tds':tds,
+                'zwmc': zwmc,
+                'zw_link': zw_link,
+                'fkl': fkl,
+                'gsmc': gsmc,
+                'zwyx': zwyx,
+                'gzdd': gzdd,
+                'gbsj': gbsj,
+                # 'brief':brief,
+                'save_date': date
             }
+
+
 def save_tocsv(data, file_name):
-     with open (file_name,'w', encoding="gbk", errors='ignore', newline='') as f:
-         header=['zwmc','zw_link','fkl','gsmc','zwyx','gzdd','gbsj','date']
-         f_csv=csv.DictWriter(f,fieldnames=header)
-         f_csv.writerows(data)
+    with open(file_name, 'a', encoding="gbk", errors='ignore', newline='') as f:
+        header = ['zwmc', 'zw_link', 'fkl', 'gsmc', 'zwyx', 'gzdd', 'gbsj', 'save_date']
+        f_csv = csv.DictWriter(f, fieldnames=header)
+        f_csv.writerows(data)
 
 def main(args):
     basic_url = 'http://sou.zhaopin.com/jobs/searchresult.ashx?'
@@ -80,17 +83,17 @@ def main(args):
     url = basic_url + urlencode(paras)
     html = download(url)
     if html:
-        data=get_content(html)
+        data = get_content(html)
         # for item in data:
         #     print("item是 %s" % type(item))
-        save_tocsv(data,'zhilian.csv')
+        save_tocsv(data, 'zhilian.csv')
+
+
 if __name__ == '__main__':
-    start=time.time()
-    number_list=list(range(TOTAL_PAGE_NUMBER))
-    args=product(ADDRESS,number_list)
+    start = time.time()
+    number_list = list(range(TOTAL_PAGE_NUMBER))
+    args = product(ADDRESS, number_list)
     pool = Pool()
     pool.map(main, args)
     end = time.time()
     print('Finished, task runs %s seconds.' % (end - start))
-
-
