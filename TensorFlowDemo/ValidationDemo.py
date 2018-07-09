@@ -14,7 +14,7 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 pd.options.display.max_rows=10
 pd.options.display.float_format='{:.1f}'.format
 #导入数据
-housing_dataframe=pd.read_csv("C:\\Users\\terrymeng\\Desktop\\data\\california_housing_train.csv", sep=",")
+housing_dataframe=pd.read_csv("D:\myproject\PythonStudyDemo\TensorFlowDemo\california_housing_train .csv", sep=",")
 
 def preprocess_features(housingDataframe):
     #纬度，经度，住房中位数年龄
