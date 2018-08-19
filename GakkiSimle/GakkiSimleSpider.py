@@ -1,32 +1,46 @@
-import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import csv
+from bs4 import  BeautifulSoup
+import json
+import pymongo
+import argparse
 
-url="https://music.163.com/#/discover/playlist/?order=hot&cat=%E5%85%A8%E9%83%A8&limit=35&offset=0"
+#mongo链接
+myclient = pymongo.MongoClient("mongodb:/")
+mydb = myclient["gakki"]
+mycol = mydb["card"]
 
-#调用phantomJs
+#chrome驱动
+url="https://m.weibo.cn/api/container/getIndex?containerid=1076031882811994&page="
 chrome_options = Options()
 chrome_options.add_argument('--headless')
 chrome_options.add_argument('--disable-gpu')
-drive = webdriver.Chrome(chrome_options=chrome_options)
+driver = webdriver.Chrome(chrome_options=chrome_options)
 
-csv_file=open("gakki.csv", "w", encoding="gb18030", newline="")
+#需要抓取的页数
+def getPages(num):
+    all_cards=[]
+    while num>0:
+        driver.get(url+str(num))
+        html = driver.page_source
+        soup = BeautifulSoup(html, 'lxml')
+        res = json.loads(soup.select('pre')[0].string)
+        cards_list=res['data']['cards']
+        for card in cards_list:
+         all_cards.append(card)
+        num-=1
+    ids=mycol.insert_many(all_cards)
+    print(ids.inserted_ids)
 
-writer=csv.writer(csv_file)
-writer.writerow(["名字","数量","地址"])
+def main():
+    parser = argparse.ArgumentParser(description='Welcome to GakkisimleSpider')
+    parser.add_argument('-n', metavar='num', dest='num',
+                        help='需要下载的页数')
+    args = parser.parse_args()
+    if args.num:
+        getPages(num=int(args.num))
+    else:
+        getPages(num=1)
 
-num=1
-#解析每页
-while (url != 'javascript:void(0)') & (num>0):
-    drive.get(url)
-    drive.switch_to.frame("contentFrame")
-    data=drive.find_element_by_id("m-pl-container").find_elements_by_tag_name("li")
-    #解析每页中的歌单
-    for i in range(len(data)):
-            nb=data[i].find_element_by_class_name("nb").text
-            msk=data[i].find_element_by_css_selector("a.msk")
-            writer.writerow([msk.get_attribute("title"), nb, msk.get_attribute("href")])
-    url=drive.find_element_by_css_selector("a.zbtn.znxt").get_attribute("href")
-    --num
-csv_file.close()
+if __name__ == '__main__':
+    main()
