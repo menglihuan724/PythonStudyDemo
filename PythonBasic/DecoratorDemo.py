@@ -1,7 +1,7 @@
 import time, functools
 def metric(fn):
 
-    @functools.wraps(fn)
+   # @functools.wraps(fn)
     def wrapper(*args,**kwargs):
         time_start=time.time()
         res=fn(*args,**kwargs)
@@ -27,3 +27,9 @@ if f == 33 and s == 7986:
     print('success!')
 else:
     print('wrong')
+
+f = fast(22, 44)
+s = slow(22, 44, 66)
+
+print(fast.__name__)
+print(slow.__name__)

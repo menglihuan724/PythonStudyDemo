@@ -4,3 +4,4 @@ int2 = functools.partial(int, base=2)
 
 #test
 print(int2('1001000000',base=16))
+print(mymax(4,5,6))

@@ -1,3 +1,4 @@
+#wrong closure
 def count():
     fs = []
     for i in range(1, 4):
@@ -7,9 +8,24 @@ def count():
     return fs
 
 f1, f2, f3 = count()
+print("wrong closure")
 print(f1())
 print(f2())
 print(f3())
+#correct closure
+def count2():
+    def f(j):
+        def g():
+            return j*j
+        return g
+    fn=[]
+    for i in range(1,4):
+       fn.append(f(i))
+    return fn
+
+f4,f5,f6=count2()
+print("correct closure")
+print(f4(),f5(),f6())
 
 def createCounter():
     data = [0]
