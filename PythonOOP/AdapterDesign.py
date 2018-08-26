@@ -32,6 +32,7 @@ def main():
     hsy=Woman("hsy")
     objects.append(PeopleAdapter(hsy,dict(yell=hsy.yell)))
 
+
     for people in objects:
         print("a people name's", people.name, "yell", people.yell())
 
