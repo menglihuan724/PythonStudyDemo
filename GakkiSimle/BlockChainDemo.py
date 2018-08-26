@@ -39,7 +39,7 @@ class BlockChain(object):
         return  self.chain[-1]
     #hash
     @staticmethod
-    def hash(block):
+    def  hash(block):
         block_string = json.dumps(block, sort_keys=True).encode()
         return hashlib.sha256(block_string).hexdigest()
     #验证
