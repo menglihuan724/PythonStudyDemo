@@ -36,5 +36,6 @@ def main():
     for people in objects:
         print("a people name's", people.name, "yell", people.yell())
 
-if __name__== "__main__":
+
+if __name__ == '__main__':
     main()
