@@ -1,6 +1,6 @@
 #coding:utf8
 '''
-Adapter
+Adapter 适配器模式
 '''
 
 import  os

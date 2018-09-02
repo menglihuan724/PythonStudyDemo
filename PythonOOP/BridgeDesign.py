@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #coding:utf8
 '''
-Bridge
+Bridge 桥接模式
 '''
 
 class DrawingApiOne(object):
