@@ -2,12 +2,8 @@
 # encoding: utf-8
 
 """
-@author: sergiojune
-@contact: 2217532592@qq.com
-@site: 
-@software: PyCharm
-@file: music.py
-@time: 2018/8/8 16:15
+@author: sergiojune,menglihuan
+@file: NetEasyDownloder.py
 """
 import requests
 import random, math
@@ -57,9 +53,10 @@ class Spider(object):
 
     def __print_info(self, songs):
         """打印歌曲需要下载的歌曲信息"""
+        print(songs)
         songs_list = []
         for num, song in enumerate(songs):
-            print(num, '歌曲名字：', song['name'], '作者：', song['ar'][0]['name'])
+            print(num, '歌曲名字：', song['name'], '歌手：', song['ar'][0]['name'])
             songs_list.append((song['name'], song['id']))
         return songs_list
 
@@ -70,8 +67,28 @@ class Spider(object):
             if songs['songCount'] == 0:
                 print('没有搜到此歌曲，请换个关键字')
             else:
-                songs = self.__print_info(songs['songs'])
-                num = input('请输入需要下载的歌曲，输入左边对应数字即可')
+                allsongs=songs['songs']
+                songs = self.__print_info(allsongs)
+                num = input('请输入需要下载的歌曲，输入左边对应数字即可,输入724下载全部')
+
+                #下载全部
+                if num=='724':
+                    for song in allsongs:
+                        print(song)
+                        url=self.__get_mp3(song['id'])
+                        if not url:
+                            print(f"收费歌曲{song['name']}，跳过")
+                            continue
+                        else:
+                            singer=song['ar'][0]['name']
+                            if name==singer:
+                                filename = song['name']
+                                self.__download_mp3(url, filename)
+                            else:
+                                continue
+                    print('下载完毕')
+                    continue
+
                 url = self.__get_mp3(songs[int(num)][1])
                 if not url:
                     print('歌曲需要收费，下载失败')
