@@ -4,6 +4,7 @@ import math
 import pandas as pd
 import tensorflow as tf
 import numpy as np
+from matplotlib import pyplot as plt
 from sklearn import metrics
 from tensorflow.python.data import Dataset
 
@@ -11,6 +12,8 @@ line='-'*10
 tf.logging.set_verbosity(tf.logging.ERROR)
 pd.options.display.max_rows = 10
 pd.options.display.float_format = "{:.1f}".format
+
+
 #显示所有行
 #显示所有列
 pd.set_option("display.max_columns", None)
@@ -29,10 +32,12 @@ feature_columns=[tf.feature_column.numeric_column("total_rooms")]
 # print(my_feature['total_rooms']+my_feature['total_rooms'][[0,1,2,3]])
 #目标
 targets = california_housing_dataframe["median_house_value"]
-#
+
+#线性回归
 my_optimizer=tf.train.GradientDescentOptimizer(learning_rate=0.0000001)
 my_optimizer=tf.contrib.estimator.clip_gradients_by_norm(my_optimizer,5.0)
 linear_regressor=tf.estimator.LinearRegressor(feature_columns=feature_columns,optimizer=my_optimizer)
+
 #输入函数
 def my_input_fn(features,targets,batch_size=1,shuffle=True,num_epochs=True):
     features={key:np.array(value)for key,value in dict(features).items()}
@@ -49,9 +54,10 @@ _ = linear_regressor.train(
     input_fn = lambda:my_input_fn(my_feature, targets),
     steps=100
 )
+
+
 #预测
 prediction_input_fn =lambda: my_input_fn(my_feature, targets, num_epochs=1, shuffle=False)
-
 predictions = linear_regressor.predict(input_fn=prediction_input_fn)
 predictions = np.array([item['predictions'][0] for item in predictions])
 mean_squared_error = metrics.mean_squared_error(predictions, targets)
@@ -64,3 +70,18 @@ check_data=pd.DataFrame()
 check_data["predictions"]=pd.Series(predictions)
 check_data["targets"]=pd.Series(targets)
 print(f'对比数据{check_data.describe()}')
+
+#绘制
+sample=california_housing_dataframe.sample(n=724)
+x0=sample["total_rooms"].min()
+x1=sample["total_rooms"].max()
+weight=linear_regressor.get_variable_value("linear/linear_model/total_rooms/weights")[0]
+bais=linear_regressor.get_variable_value("linear/linear_model/bias_weights")
+y0=x0*weight+bais
+y1=x1*weight+bais
+plt.plot([x0,x1],[y0,y1],c="k")
+plt.xlabel("total_rooms")
+plt.ylabel("median_house_value")
+plt.grid(True)
+plt.scatter(sample["total_rooms"],sample["median_house_value"])
+plt.show()
