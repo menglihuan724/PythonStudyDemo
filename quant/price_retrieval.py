@@ -6,11 +6,14 @@
 from __future__ import print_function
 
 import datetime
+import time
 import warnings
 import pymysql
 pymysql.install_as_MySQLdb()
 import MySQLdb as mdb
 import requests
+import pandas_datareader.data as web
+import numpy as np
 
 
 # Obtain a database connection to the MySQL instance
@@ -19,7 +22,6 @@ db_user = 'menglihuan'
 db_pass = '297234'
 db_name = 'securities_master'
 con = mdb.connect(db_host, db_user, db_pass, db_name)
-
 
 def obtain_list_of_db_tickers():
     """
@@ -50,21 +52,35 @@ def get_daily_historic_data_yahoo(
         start_date[0], end_date[1]-1, end_date[2], 
         end_date[0]
     )
-    yahoo_url = "http://ichart.finance.yahoo.com/table.csv"
+    yahoo_url = "http:///table.finance.yahoo.com/table.csv"
     yahoo_url += "?s=%s&a=%s&b=%s&c=%s&d=%s&e=%s&f=%s"
     yahoo_url = yahoo_url % ticker_tup
+
+    #yahoo_url_2018="'https://finance.yahoo.com/quote/{}/history?period1=1514750400&period2=1540411199&interval=1d&frequency=1d&filter=history'"%ticker
 
     # Try connecting to Yahoo Finance and obtaining the data
     # On failure, print an error message.
     try:
-        yf_data = requests.get(yahoo_url).text.split("\n")[1:-1]
+        #yf_data = requests.get(yahoo_url_2018).text.split("\n")[1:-1]
+        start = datetime.datetime(2000, 1, 1)
+        end = datetime.datetime(2018, 10, 26)
+        data = web.DataReader(ticker, "yahoo", start, end)
+        data
+       # np.set_printoptions(suppress=True)
+       # yf_data=np.array(data.values)
+        yf_data=np.asarray(data.values,np.string_)
+        indexs=data.index.values
+        n=0
         prices = []
         for y in yf_data:
-            p = y.strip().split(',')
-            prices.append( 
-                (datetime.datetime.strptime(p[0], '%Y-%m-%d'),
-                p[1], p[2], p[3], p[4], p[5], p[6]) 
+            # p = y.strip().split(',')
+            p=y
+            mydate=np.datetime_as_string(indexs[n], timezone='UTC',unit='h')[0:10]
+            prices.append(
+                (datetime.datetime.strptime(mydate, '%Y-%m-%d'),
+                p[0], p[1], p[2], p[3], p[4], p[5])
             )
+            n+=1
     except Exception as e:
         print("Could not download Yahoo data: %s" % e)
     return prices
@@ -86,7 +102,7 @@ def insert_daily_data_into_db(
     # Amend the data to include the vendor ID and symbol ID
     daily_data = [
         (data_vendor_id, symbol_id, d[0], now, now,
-        d[1], d[2], d[3], d[4], d[5], d[6]) 
+        d[1], d[2], d[3], d[4], d[5], d[6])
         for d in daily_data
     ]
 
@@ -118,6 +134,9 @@ if __name__ == "__main__":
             "Adding data for %s: %s out of %s" % 
             (t[1], i+1, lentickers)
         )
+        if i!=85:
+            continue
         yf_data = get_daily_historic_data_yahoo(t[1])
         insert_daily_data_into_db('1', t[0], yf_data)
+        time.sleep(5)
     print("Successfully added Yahoo Finance pricing data to DB.")

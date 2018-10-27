@@ -13,11 +13,13 @@ from mysql.connector import errorcode
 
 class MyDataSource:
     config = {
+        'user':'root',
+        'password':'297234',
         'host': '127.0.0.1',
         'port': 3306,
         'database': 'pwdstore',
         'charset': 'utf8',
-        'use_unicode':True
+        'use_unicode':True,
     }
 
     def __init__(self) :
@@ -77,14 +79,14 @@ def tokenize(cmd):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Terry's PWDTool")
-    parser.add_argument('-n', metavar='name', dest='name',
-                        help='账号所属')
-    parser.add_argument('-a', metavar='account', dest='account',
-                        help='账号')
-    parser.add_argument('-p', metavar='password', dest='password',
-                        help='密码')
-    args = parser.parse_args()
+    # parser = argparse.ArgumentParser(description="Terry's PWDTool")
+    # parser.add_argument('-n', metavar='name', dest='name',
+    #                     help='账号所属')
+    # parser.add_argument('-a', metavar='account', dest='account',
+    #                     help='账号')
+    # parser.add_argument('-p', metavar='password', dest='password',
+    #                     help='密码')
+    # args = parser.parse_args()
 
 
     db=MyDataSource()
