@@ -68,22 +68,21 @@ if __name__ == "__main__":
     data = pro.stock_basic(exchange_id='', list_status='L',
                            fields='symbol,name')
     symbols = data['symbol']
-    names=data['name']
+    names = data['name']
     success = []
-    try:
-        for indexa,symbola in enumerate(symbols):
-            a=pd.read_csv(path.format(symbola))
+    for indexa, symbola in enumerate(symbols):
+      try:
+            a = pd.read_csv(path.format(symbola))
             df = pd.DataFrame(index=a.index)
-            first_name=names[indexa]
+            first_name = names[indexa]
             df[first_name] = a["pre_close"]
+            for indexb, symbolb in enumerate(symbols):
 
-            for indexb,symbolb in enumerate(symbols):
+                if symbola != symbolb:
 
-                if symbola!=symbolb:
+                    second_name = names[indexb]
 
-                    second_name=names[indexa]
-
-                    b=pd.read_csv(path.format(symbolb))
+                    b = pd.read_csv(path.format(symbolb))
                     df[second_name] = b["pre_close"]
 
                     # Plot the two time series
@@ -107,12 +106,10 @@ if __name__ == "__main__":
                     # Calculate and output the CADF test on the residuals
                     cadf = ts.adfuller(df["res"])
                     # pprint.pprint(cadf)
-                    if cadf[0]<0.5:
+                    if cadf[0] < 0.5:
                         success.append(f'组合:{first_name}:{second_name}')
-    except Exception as e:
+      except Exception as e:
             print(e)
-            pass
-
-
+            continue
 
     print(success)
