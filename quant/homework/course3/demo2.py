@@ -68,12 +68,24 @@ import sys
 from datetime import datetime
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 
 import pandas as pd
 
 from sklearn import cluster, covariance, manifold
+import tushare as ts
+
+
+
+#指定默认字体解决乱码问题
+matplotlib.rcParams['font.sans-serif'] = ['SimHei']
+matplotlib.rcParams['font.family']='sans-serif'
+#解决负号'-'显示为方块的问题
+matplotlib.rcParams['axes.unicode_minus'] = False
+#通过tushare获取沪深三百的名字
+pro = ts.pro_api()
 
 print(__doc__)
 
@@ -88,74 +100,20 @@ print(__doc__)
 start_date = datetime(2015, 7, 24).date()
 end_date = datetime(2018, 7, 24).date()
 
-symbol_dict = {
-    'TOT': 'Total',
-    'XOM': 'Exxon',
-    'CVX': 'Chevron',
-    'COP': 'ConocoPhillips',
-    'VLO': 'Valero Energy',
-    'MSFT': 'Microsoft',
-    'IBM': 'IBM',
-    # 'TWX': 'Time Warner',
-    # 'CMCSA': 'Comcast',
-    # 'CVC': 'Cablevision',
-    # 'YHOO': 'Yahoo',
-    # 'DELL': 'Dell',
-    # 'HPQ': 'HP',
-    # 'AMZN': 'Amazon',
-    # 'TM': 'Toyota',
-    # 'CAJ': 'Canon',
-    # 'SNE': 'Sony',
-    # 'F': 'Ford',
-    # 'HMC': 'Honda',
-    # 'NAV': 'Navistar',
-    # 'NOC': 'Northrop Grumman',
-    # 'BA': 'Boeing',
-    # 'KO': 'Coca Cola',
-    # 'MMM': '3M',
-    # 'MCD': 'McDonald\'s',
-    # 'PEP': 'Pepsi',
-    # 'K': 'Kellogg',
-    # 'UN': 'Unilever',
-    # 'MAR': 'Marriott',
-    # 'PG': 'Procter Gamble',
-    # 'CL': 'Colgate-Palmolive',
-    # 'GE': 'General Electrics',
-    # 'WFC': 'Wells Fargo',
-    # 'JPM': 'JPMorgan Chase',
-    # 'AIG': 'AIG',
-    # 'AXP': 'American express',
-    # 'BAC': 'Bank of America',
-    # 'GS': 'Goldman Sachs',
-    # 'AAPL': 'Apple',
-    # 'SAP': 'SAP',
-    # 'CSCO': 'Cisco',
-    # 'TXN': 'Texas Instruments',
-    # 'XRX': 'Xerox',
-    # 'WMT': 'Wal-Mart',
-    # 'HD': 'Home Depot',
-    # 'GSK': 'GlaxoSmithKline',
-    # 'PFE': 'Pfizer',
-    # 'SNY': 'Sanofi-Aventis',
-    # 'NVS': 'Novartis',
-    # 'KMB': 'Kimberly-Clark',
-    # 'R': 'Ryder',
-    # 'GD': 'General Dynamics',
-    # 'RTN': 'Raytheon',
-    # 'CVS': 'CVS',
-    # 'CAT': 'Caterpillar',
-    'DD': 'DuPont de Nemours'}
+data = pro.stock_basic(exchange_id='', list_status='L',
+                       fields='symbol,name')
+symbols=data['symbol'][:24]
+names=data['name'][:24]
 
-
-symbols, names = np.array(sorted(symbol_dict.items())).T
+# symbols, names = np.array(sorted(symbol_dict.items())).T
 
 quotes = []
 
 for symbol in symbols:
     print('Fetching quote history for %r' % symbol, file=sys.stderr)
-    url = ('https://raw.githubusercontent.com/scikit-learn/examples-data/'
-           'master/financial-data/{}.csv')
-    quotes.append(pd.read_csv(url.format(symbol)))
+    path = ('H:/software/work/python_project/PythonStudyDemo/quant/csv/hs300_D/{}.csv')
+    path=path.format(symbol)
+    quotes.append(pd.read_csv(path.format(symbol)))
 
 close_prices = np.vstack([q['close'] for q in quotes])
 open_prices = np.vstack([q['open'] for q in quotes])
@@ -207,7 +165,7 @@ partial_correlations = edge_model.precision_.copy()
 d = 1 / np.sqrt(np.diag(partial_correlations))
 partial_correlations *= d
 partial_correlations *= d[:, np.newaxis]
-non_zero = (np.abs(np.triu(partial_correlations, k=1)) > 0.02)
+non_zero = (np.abs(np.triu(partial_correlations, k=1)) > 0.01)
 
 # Plot the nodes using the coordinates of our embedding
 plt.scatter(embedding[0], embedding[1], s=100 * d ** 2, c=labels,
