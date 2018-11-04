@@ -4,6 +4,7 @@
 import numpy as np
 
 arr=np.arange(10)
+print(arr)
 print(f'开方:{np.sqrt(arr)}')
 print(f'科学技术法:{np.exp(arr)}')
 print(f'平均数:{np.mean(arr)}')
