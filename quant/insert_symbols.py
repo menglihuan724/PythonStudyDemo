@@ -71,7 +71,7 @@ def insert_snp500_symbols(symbols):
     """
     # Connect to the MySQL instance
     db_host = 'localhost'
-    db_user = 'menglihuan'
+    db_user = 'root'
     db_pass = '297234'
     db_name = 'securities_master'
     con = mdb.connect(
